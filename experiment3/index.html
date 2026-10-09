@@ -1,78 +1,228 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>To-Do List</title>
+    <title>Task Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         body {
-            background-color: #f5f5f5;
+            background-color: #101827;
+            color: white;
+            font-family: Arial, sans-serif;
         }
 
-        .container {
-            width: 500px;
-            margin-top: 50px;
+        .main-box {
+            max-width: 650px;
+            margin: 60px auto;
+            padding: 25px;
+        }
+
+        .heading {
+            background-color: #1d293d;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .heading p {
+            color: #aab5c5;
+            margin-bottom: 0;
+        }
+
+        .task-input {
+            background-color: #1d293d;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            background-color: #101827;
+            color: white;
+            border: 1px solid #3a475c;
+        }
+
+        .form-control:focus {
+            background-color: #101827;
+            color: white;
+            border-color: #ff9f43;
+            box-shadow: none;
+        }
+
+        .form-control::placeholder {
+            color: #8995a7;
+        }
+
+        .add-btn {
+            background-color: #ff9f43;
+            color: #101827;
+            border: none;
+            font-weight: bold;
+        }
+
+        .add-btn:hover {
+            background-color: #ffb363;
+        }
+
+        .task-item {
+            background-color: #1d293d;
+            border: 1px solid #303e53;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .task-name {
+            cursor: pointer;
+            overflow-wrap: anywhere;
+        }
+
+        .done {
+            text-decoration: line-through;
+            color: #8995a7;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .task-count {
+            color: #ff9f43;
+            font-weight: bold;
+        }
+
+        #emptyMessage {
+            color: #8995a7;
+            text-align: center;
+            padding: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .main-box {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .heading h1 {
+                font-size: 25px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="main-box">
 
-    <h2 class="text-center mb-4">To-Do List</h2>
+        <div class="heading">
+            <p>MY PERSONAL SPACE</p>
+            <h1>Task Manager.</h1>
+            <p>One task at a time. Get things done.</p>
+        </div>
 
-    <div class="input-group mb-3">
-        <input type="text" id="task" class="form-control"
-               placeholder="Enter a task">
+        <div class="task-input">
+            <label for="task" class="form-label">What do you need to do?</label>
 
-        <button class="btn btn-primary" onclick="addTask()">Add</button>
+            <div class="input-group">
+                <input type="text" id="task" class="form-control"
+                       placeholder="e.g. Complete my assignment">
+                <button class="btn add-btn" onclick="addTask()">+ Add Task</button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Today's Tasks</h5>
+            <span class="task-count" id="count">0 tasks</span>
+        </div>
+
+        <div id="taskList"></div>
+
+        <p id="emptyMessage">Nothing here yet. Add your first task!</p>
+
     </div>
 
-    <ul id="taskList" class="list-group"></ul>
+    <script>
+        function updateCount() {
+            var tasks = document.getElementsByClassName("task-item");
+            var total = tasks.length;
 
-</div>
+            document.getElementById("count").innerText =
+                total + (total == 1 ? " task" : " tasks");
 
+            if (total == 0) {
+                document.getElementById("emptyMessage").style.display = "block";
+            } else {
+                document.getElementById("emptyMessage").style.display = "none";
+            }
+        }
 
-<script>
+        function addTask() {
+            var input = document.getElementById("task");
+            var task = input.value.trim();
 
-function addTask() {
+            if (task == "") {
+                alert("Please enter a task first!");
+                return;
+            }
 
-    var task = document.getElementById("task").value;
+            var item = document.createElement("div");
+            item.className = "task-item";
 
-    if (task == "") {
-        alert("Please enter a task");
-        return;
-    }
+            var name = document.createElement("span");
+            name.className = "task-name";
+            name.innerText = task;
 
-    var li = document.createElement("li");
+            name.onclick = function() {
+                name.classList.toggle("done");
+            };
 
-    li.className = "list-group-item";
-    li.innerText = task;
+            var del = document.createElement("button");
+            del.innerText = "Delete";
+            del.className = "delete-btn";
 
-    li.onclick = function() {
-        li.style.textDecoration = "line-through";
-    };
+            del.onclick = function() {
+                item.remove();
+                updateCount();
+            };
 
-    var button = document.createElement("button");
+            item.appendChild(name);
+            item.appendChild(del);
 
-    button.innerText = "Delete";
-    button.className = "btn btn-danger btn-sm float-end";
+            document.getElementById("taskList").appendChild(item);
 
-    button.onclick = function() {
-        li.remove();
-    };
+            input.value = "";
+            updateCount();
+        }
 
-    li.appendChild(button);
+        document.getElementById("task").addEventListener("keypress", function(event) {
+            if (event.key == "Enter") {
+                addTask();
+            }
+        });
 
-    document.getElementById("taskList").appendChild(li);
-
-    document.getElementById("task").value = "";
-}
-
-</script>
+        updateCount();
+    </script>
 
 </body>
 </html>
-
